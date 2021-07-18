@@ -2,9 +2,12 @@ import React, {useState, useEffect} from "react";
 import firebase from "./utils/firebaseConfig";
 import Main from "./components/Main";
 import { StyledFirebaseAuth } from "react-firebaseui";
+import "./App.css"
+import { UidContext } from "./UidContext"
 
 const App = () => {
   const [isSignedIn, setIsSignedIn] = useState(false);
+  const [uid, setUid] = useState(null);
 
   const uiConfig = {
     signInFlow: "popup",
@@ -15,31 +18,32 @@ const App = () => {
       firebase.auth.EmailAuthProvider.PROVIDER_ID
     ],
     callbacks: {
-      signInSuccess: () => false,
+      signInSuccesssignInSuccessWithAuthResult: () => false,
     }
   };
 
   useEffect(() => {
     firebase.auth().onAuthStateChanged((user) => {
       setIsSignedIn(!!user);
-      console.log(user);
-})
-  },[])
+      setUid(user.uid);
+    })
+  }, [])
 
   return (
-    <div className="app" style={{textAlign: "center"}}>
-      {isSignedIn ? (
-        <Main />
-      ) : (
+    <UidContext.Provider value={uid} >
+      <div className="app" style={{ textAlign: "center" }}>
+        {isSignedIn ? (
+          <Main />
+        ) : (
           <div className="login-page">
             <h1>React Firebase</h1>
             <StyledFirebaseAuth
               uiConfig={uiConfig}
-              firebaseAuth={firebase.auth()}/>
+              firebaseAuth={firebase.auth()} />
           </div>
-      )}
-    </div>
-  );
+        )}
+      </div>
+    </UidContext.Provider>)
 }
-
-export default App;
+  
+  export default App
